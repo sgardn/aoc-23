@@ -12,21 +12,22 @@ iex -S mix
 
 ## Tests
 
-The tests are all located in `/tests/P{DD}/test.exs`
+The tests are all located in `/tests/*/{module}_test.exs` - run all tests by executing the following:
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `aoc_23` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:aoc_23, "~> 0.1.0"}
-  ]
-end
+```
+mix test
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/aoc_23>.
+Tests marked with `@tag :pending` will be ignored by default.
+
+You can run a single one by using the explicit path:
+
+```
+mix test test/aoc23_test.exs
+```
+
+Testing single cases marked with `@tag :focus` is possible with `--only focus`
+
+```
+mix test --only focus
+```
