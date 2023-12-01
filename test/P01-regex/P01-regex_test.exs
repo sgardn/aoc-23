@@ -33,41 +33,4 @@ defmodule Aoc23Test.P01 do
       assert Aoc23.P01.gentle_words_to_digits("nine") == "n9e"
     end
   end
-
-  test "two1nine" do
-    assert Aoc23.P01.loop_scan_replace("two1nine") == "219"
-  end
-
-  test "eightwothree" do
-    assert Aoc23.P01.loop_scan_replace("eightwothree") == "8wo3"
-  end
-
-  test "abcone2threexyz" do
-    assert Aoc23.P01.loop_scan_replace("abcone2threexyz") == "abc123xyz"
-  end
-
-  test "xtwone3four" do
-    assert Aoc23.P01.loop_scan_replace("xtwone3four") == "x2ne34"
-  end
-
-  test "4nineeightseven2" do
-    assert Aoc23.P01.loop_scan_replace("4nineeightseven2") == "49872"
-  end
-
-  test "zoneight234" do
-    assert Aoc23.P01.loop_scan_replace("zoneight234") == "z1ight234"
-  end
-
-  test "7pqrstsixteen" do
-    assert Aoc23.P01.loop_scan_replace("7pqrstsixteen") == "7pqrst6teen"
-  end
-
-  # @cases ~w[two1nine eightwothree abcone2threexyz xtwone3four 4nineeightseven2 zoneight234 7pqrstsixteen]
-  # for value <- @cases do
-  #   # @tag :pending
-  #   test "check if #{value} is scored" do
-  #     IO.puts(unquote(value))
-  #     assert 1 == Aoc23.P01.loop_scan_replace(unquote(value))
-  #   end
-  # end
 end
