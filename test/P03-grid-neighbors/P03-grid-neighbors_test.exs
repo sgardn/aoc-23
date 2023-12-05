@@ -7,15 +7,23 @@ defmodule Aoc23Test.P03 do
   @long_number %NumberChars{x_min: 3, x_max: 6, y: 2, value: 4123}
 
   # @tag :focus
-  describe "P03-dice-cover part one (sum of game IDs)" do
-    # @tag :pending
+  describe "P03-dice-cover part one (sum of games that touch ops)" do
     test "test input" do
       assert 4361 == Aoc23.P03.run(Aoc23.P03.test_file())
     end
 
-    # @tag :pending
     test "real input" do
       assert 533775 == Aoc23.P03.run(Aoc23.P03.input_file())
+    end
+  end
+
+  describe "P03-dice-cover part two (gear values for numbers pairs touching *s)" do
+    test "test input" do
+      assert 467835 == Aoc23.P03.run2(Aoc23.P03.test_file())
+    end
+
+    test "real input" do
+      assert 78236071 == Aoc23.P03.run2(Aoc23.P03.input_file())
     end
   end
 

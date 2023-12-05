@@ -1,17 +1,28 @@
 defmodule Aoc23.P03 do
   @input_file Path.join(["lib", "P03-grid-neighbors", "input.txt"])
   @test_file Path.join(["lib", "P03-grid-neighbors", "test.txt"])
+  @all_chars_regex ~r/\*|\&|\$|\-|\+|\%|\/|\#|\=|\@/
+  @stars_only_regex ~r/\*/
 
   @spec input_file() :: <<_::256>>
   def input_file, do: @input_file
   @spec test_file() :: <<_::248>>
   def test_file, do: @test_file
 
+    # x and y are 0 indexed
+    defmodule SymbolChar do
+      defstruct [:x, :y, :type]
+    end
+
+    defmodule NumberChars do
+      defstruct [:value, :x_min, :x_max, :y]
+    end
+
   def run(path) do
     lines = Aoc23.file_handle_to_lines(path)
     {nchars, schars} = lines
     |> Enum.with_index()
-    |> Enum.map(fn {l, index} -> parse_line(l, index) end)
+    |> Enum.map(fn {l, index} -> parse_line(l, index, false) end)
     |> Enum.unzip()
     |> then(fn {nums, chars} -> {List.flatten(nums), List.flatten(chars)} end)
 
@@ -23,6 +34,35 @@ defmodule Aoc23.P03 do
     |> Enum.sum()
   end
 
+  def run2(path) do
+    {nchars, schars} = Aoc23.file_handle_to_lines(path)
+    |> Enum.with_index()
+    |> Enum.map(fn {l, index} -> parse_line(l, index, true) end)
+    |> Enum.unzip()
+    |> then(fn {nums, chars} -> {List.flatten(nums), List.flatten(chars)} end)
+
+    schars
+    |> Enum.map(fn star -> get_gear_value(star, nchars) end)
+    |> Enum.sum()
+  end
+
+  def get_gear_value(star, numChars) do
+    star_neighbors = get_boundary_coords(star)
+    neighbors = numChars
+    |> Enum.filter(fn nc -> overlap?(star_neighbors, get_number_coords(nc)) end)
+
+    if length(neighbors) > 1 do
+      neighbors
+      |> Enum.reduce(1, fn nc, acc -> acc * nc.value end)
+    else
+      0
+    end
+  end
+
+  def overlap?(l1, l2) do
+    not Enum.empty?(MapSet.intersection(MapSet.new(l1), MapSet.new(l2)))
+  end
+
   def get_part_value(numberChar, symbolChars) do
     boundary_coords = get_boundary_coords(numberChar)
     # IO.puts "get_part_value #{numberChar.value}, x: (#{numberChar.x_min}..#{numberChar.x_max}), y: #{numberChar.y}"
@@ -32,18 +72,33 @@ defmodule Aoc23.P03 do
     |> then(fn scorable -> if scorable do numberChar.value else 0 end end)
   end
 
-  def get_boundary_coords(numberChar) do
-    # x range is 1 fewer than .. 1 more than numberChar.x_range
-    x_range = (numberChar.x_min-1..numberChar.x_max+1)
-    # IO.inspect(x_range)
+  def get_boundary_coords(%NumberChars{value: _v, x_min: x_min, x_max: x_max, y: y}) do
+    x_range = (x_min-1..x_max+1)
 
     top_bottom_points = x_range
-    |> Enum.map(fn x -> make_vertical_points(x, numberChar.y) end)
+    |> Enum.map(fn x -> make_vertical_points(x, y) end)
     |> List.flatten()
 
-    left = make_point(numberChar.x_min-1, numberChar.y)
-    right = make_point(numberChar.x_max+1, numberChar.y)
+    left = make_point(x_min-1, y)
+    right = make_point(x_max+1, y)
     [left, right | top_bottom_points]
+  end
+
+  def get_boundary_coords(%SymbolChar{type: _t, x: x, y: y}) do
+    x_range = (x-1..x+1)
+
+    top_bottom_points = x_range
+    |> Enum.map(fn x -> make_vertical_points(x, y) end)
+    |> List.flatten()
+
+    left = make_point(x-1, y)
+    right = make_point(x+1, y)
+    [left, right | top_bottom_points]
+  end
+
+  def get_number_coords(%NumberChars{value: _v, x_min: x_min, x_max: x_max, y: y}) do
+    x_min..x_max
+    |> Enum.map(fn x -> make_point(x, y) end)
   end
 
   # y values are 1 more or 1 less
@@ -55,30 +110,12 @@ defmodule Aoc23.P03 do
     {x, y}
   end
 
-  def run2(path) do
-    _lines = Aoc23.file_handle_to_lines(path)
-
-    nil
-  end
-
-  # defmodule CoordPoint do
-  #   defstruct [:x, :y]
-  # end
-
-  # x and y are 0 indexed
-  defmodule SymbolChar do
-    defstruct [:x, :y, :type]
-  end
-
-  defmodule NumberChars do
-    defstruct [:value, :x_min, :x_max, :y]
-  end
-
   @doc """
   Turn a line into two lists of NumberChars and SymbolChars
   """
-  def parse_line(str, y) do
-    {parse_numbers(str, y), parse_chars(str, y)}
+  def parse_line(str, y, selective_chars) do
+    regex = if selective_chars do @stars_only_regex else @all_chars_regex end
+    {parse_numbers(str, y), parse_chars(str, y, regex)}
   end
 
   @spec parse_numbers(binary(), any()) :: any()
@@ -94,10 +131,10 @@ defmodule Aoc23.P03 do
     end)
   end
 
-  @spec parse_chars(binary(), any()) :: any()
-  def parse_chars(str, y) do
-    # ["*", "&", "$", "-", "+", "%", "/", "#", "=", "@"]
-    Regex.scan(~r/\*|\&|\$|\-|\+|\%|\/|\#|\=|\@/, str, return: :index)
+  @spec parse_chars(binary(), any(), Regex.t()) :: any()
+  def parse_chars(str, y, regex) do
+    # ["*", "&", "$", "-", "+", "%", "/", "#", "=", "@"], or just "*"
+    Regex.scan(regex, str, return: :index)
     |> List.flatten()
     |> Enum.reduce([], fn {offset, length}, acc ->
       t = String.slice(str, offset, length)
