@@ -7,7 +7,7 @@ defmodule Aoc23.P01 do
   def test_file, do: @test_file
 
   @spec run() :: number()
-  def run do
+  def run() do
     {:ok, lines} = File.read(@input_file)
     lines
     |> String.split("\n")

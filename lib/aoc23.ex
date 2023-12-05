@@ -1,23 +1,12 @@
 defmodule Aoc23 do
-  @moduledoc """
-  Documentation for `Aoc23`.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Aoc23.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
-
-  @spec list() :: [<<_::64>>, ...]
-  def list do
-    ~w[01-regex]
+  def file_handle_to_lines(path) do
+    case File.read(path) do
+      {:ok, lines} ->
+        lines
+        |> String.split("\n")
+      err ->
+        IO.puts("Failed to read file! Cause:")
+        IO.inspect(err)
+    end
   end
 end

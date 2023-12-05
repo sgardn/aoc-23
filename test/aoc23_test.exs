@@ -2,7 +2,9 @@ defmodule Aoc23Test do
   use ExUnit.Case
   # doctest Aoc23
 
-  # test "greets the world" do
-  #   assert Aoc23.hello() == :world
-  # end
+  @tag :pending
+  test "file_handle_to_lines" do
+    assert 1 == 2
+    # todo
+  end
 end
